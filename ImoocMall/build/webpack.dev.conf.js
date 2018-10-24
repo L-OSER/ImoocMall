@@ -13,6 +13,13 @@ const portfinder = require('portfinder')
 const HOST = process.env.HOST
 const PORT = process.env.PORT && Number(process.env.PORT)
 
+// 第一步
+const express = require('express')
+const app = express()
+var goodsData = require('./../mock/goods.json')
+var apiRoutes = express.Router()
+app.use('/api', apiRoutes)
+
 const devWebpackConfig = merge(baseWebpackConfig, {
   module: {
     rules: utils.styleLoaders({ sourceMap: config.dev.cssSourceMap, usePostCSS: true })
@@ -27,6 +34,12 @@ const devWebpackConfig = merge(baseWebpackConfig, {
       rewrites: [
         { from: /.*/, to: path.posix.join(config.dev.assetsPublicPath, 'index.html') },
       ],
+    },
+    //第二步
+    before (app) {
+      app.get('/api/goods', function (req, res) {
+        res.json(goodsData)
+      })
     },
     hot: true,
     contentBase: false, // since we use CopyWebpackPlugin.
