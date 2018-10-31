@@ -16,9 +16,9 @@ const PORT = process.env.PORT && Number(process.env.PORT)
 // 第一步
 const express = require('express')
 const app = express()
-var goodsData = require('./../mock/goods.json')
+/*var goodsData = require('./../mock/goods.json')
 var apiRoutes = express.Router()
-app.use('/api', apiRoutes)
+app.use('/api', apiRoutes)*/
 
 const devWebpackConfig = merge(baseWebpackConfig, {
   module: {
