@@ -13,6 +13,12 @@ module.exports = {
     proxyTable: {
       '/goods':{
         target:'http://localhost:3000'
+      },
+      '/goods/*':{
+        target:'http://localhost:3000'
+      },
+      '/users/*':{
+        target:'http://localhost:3000'
       }
     },
     //代理,访问goods转到localhost:3000下面,仅开发环境使用
