@@ -62,7 +62,7 @@
               <li v-for="item in cartList">
                 <div class="cart-tab-1">
                   <div class="cart-item-check">
-                    <a href="javascipt:;" class="checkbox-btn item-check-btn">
+                    <a href="javascipt:;" class="checkbox-btn item-check-btn" :class="{'check':item.checked==1}" @click="editCart('checked',item)">
                       <svg class="icon icon-ok">
                         <use xlink:href="#icon-ok"></use>
                       </svg>
@@ -76,21 +76,21 @@
                   </div>
                 </div>
                 <div class="cart-tab-2">
-                  <div class="item-price">{{item.salePrice}}</div>
+                  <div class="item-price">{{item.salePrice | currency}}</div>
                 </div>
                 <div class="cart-tab-3">
                   <div class="item-quantity">
                     <div class="select-self select-self-open">
                       <div class="select-self-area">
-                        <a class="input-sub">-</a>
+                        <a class="input-sub" @click="editCart('minu',item)">-</a>
                         <span class="select-ipt">{{item.productNum}}</span>
-                        <a class="input-add">+</a>
+                        <a class="input-add" @click="editCart('add',item)">+</a>
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="cart-tab-4">
-                  <div class="item-price-total">{{item.productNum*item.salePrice}}</div>
+                  <div class="item-price-total">{{(item.productNum*item.salePrice) | currency }}</div>
                 </div>
                 <div class="cart-tab-5">
                   <div class="cart-item-opration">
@@ -109,8 +109,8 @@
           <div class="cart-foot-inner">
             <div class="cart-foot-l">
               <div class="item-all-check">
-                <a href="javascipt:;">
-                  <span class="checkbox-btn item-check-btn">
+                <a href="javascipt:;" @click="toggleCheckAll">
+                  <span class="checkbox-btn item-check-btn" :class="{'check':checkAllFlag}">
                       <svg class="icon icon-ok"><use xlink:href="#icon-ok"/></svg>
                   </span>
                   <span>Select all</span>
@@ -119,10 +119,10 @@
             </div>
             <div class="cart-foot-r">
               <div class="item-total">
-                Item total: <span class="total-price"></span>
+                Item total: <span class="total-price">{{totalPiece | currency}}</span>
               </div>
               <div class="btn-wrap">
-                <a class="btn btn--red">Checkout</a>
+                <a class="btn btn--red" :class="{'btn--dis':checkedCount==0}" @click="checkOut" href="javascript:;">Checkout</a>
               </div>
             </div>
           </div>
@@ -169,6 +169,7 @@
     import NavFooter from '../components/NavFooter'
     import NavBread from '../components/NavBread'
     import Modal from '../components/Modal'
+    // import {currency} from '../util/currency'
     import axios from 'axios'
     export default{
         data(){
@@ -176,6 +177,7 @@
                 cartList:[],
                 delItem:{},
                 modalConfirm:false,
+              productId:"",
 
             }
         },
@@ -183,8 +185,29 @@
             this.init();
         },
         computed:{
-
+          checkAllFlag(){
+              return this.checkedCount == this.cartList.length;
+          },
+          checkedCount(){
+            var i = 0;
+            this.cartList.forEach((item)=>{
+              if(item.checked=='1')i++;
+            })
+            return i;
+          },
+          totalPiece(){
+            var money = 0;
+            this.cartList.forEach((item)=>{
+              if(item.checked=='1'){
+                money +=parseFloat(item.salePrice)*parseInt(item.productNum)
+              }
+            })
+            return money;
+          }
         },
+      filters:{
+        // currency:currency
+      },
         components:{
           NavHeader,
           NavFooter,
@@ -201,13 +224,66 @@
           //删除确认
           delCartConfirm(productId){
               this.modalConfirm = true;
+              this.productId = productId
           },
         //  删除购物车
           delCart(){
 
+            axios.post("/users/cartDel",{
+              productId:this.productId
+            }).then((response)=>{
+              let res = response.data;
+              if (res.status == '0'){
+                this.modalConfirm = false;
+                this.init();
+              }
+            })
           },
           closeModal(){
             this.modalConfirm = false;
+          },
+          //修改数量,以及选中
+          editCart(flag,item){
+              if (flag=="add"){
+                item.productNum ++;
+              } else if(flag=="minu"){
+                if(item.productNum<=1){
+                  return;
+                }
+                item.productNum --;
+              } else{
+                item.checked=="1"?item.checked="0":item.checked="1"
+              }
+
+              axios.post("/users/cartEdit",{
+                productId:item.productId,
+                productNum:item.productNum,
+                checked:item.checked
+              }).then((response)=>{
+                let res = response.data;
+              })
+          },
+        //  全选
+          toggleCheckAll(){
+             var flag = !this.checkAllFlag;
+              this.cartList.forEach((item)=>{
+                item.checked = flag?'1':'0';
+              })
+            axios.post("/users/editCheckAll",{
+              checkAll:flag
+            }).then((response)=>{
+              let res = response.data;
+              if (res.status=='0'){
+                console.log("update suc")
+              }
+            })
+          },
+          checkOut(){
+              if(this.checkedCount>0){
+                this.$router.push({
+                  path:"/address"
+                });
+              }
           }
         }
     }
