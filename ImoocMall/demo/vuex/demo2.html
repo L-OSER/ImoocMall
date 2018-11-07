@@ -10,6 +10,7 @@
 <div id="app">
   <h2>{{msg}}</h2>
   <counter></counter>
+  <a href="javascript:;" @click="add">点击</a>
 </div>
 <script>
   const counter = {
@@ -25,6 +26,11 @@
   const store = new Vuex.Store({
     state:{
       count:10
+    },
+    mutations:{
+      increment(state){
+        state.count++;
+      }
     }
   });
   new Vue({
@@ -35,6 +41,11 @@
     },
     components:{
       counter
+    },
+    methods:{
+      add(){
+        this.$store.commit("");
+      }
     }
   })
 </script>
