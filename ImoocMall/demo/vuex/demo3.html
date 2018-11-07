@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Vuex - Mutation</title>
+  <title>Vuex - Action</title>
   <script src="../../node_modules/vue/dist/vue.js"></script>
   <script src="../../node_modules/vuex/dist/vuex.min.js"></script>
 </head>
@@ -18,7 +18,7 @@
     template:`
   <div>
       <div>{{count}}</div>
-      <div>{{name}}</div>
+      <div>{{userName}}</div>
    </div>
     `,
     computed:{
@@ -27,6 +27,9 @@
       },
       name(){
         return this.$store.state.name;
+      },
+      userName(){
+        return this.$store.getters.userName;
       }
     }
   }
@@ -35,6 +38,12 @@
       count:10,
       name:'jack'
     },
+    getters:{
+    //  辅助
+      userName(state){
+       return state.name + ',Hello';
+      }
+    },
     mutations:{
       increment(state,num){
         state.count = num;
@@ -42,6 +51,12 @@
       updateName(state,userName){
         state.name = userName;
       }
+    },
+    actions:{
+      incrementAction(context,num){
+        context.commit("increment",num);
+      },
+
     }
   });
   new Vue({
@@ -55,7 +70,7 @@
     },
     methods:{
       add(){
-        this.$store.commit("increment",20);
+        this.$store.dispatch("incrementAction",5);
         this.$store.commit("updateName","马桶");
       }
     }
