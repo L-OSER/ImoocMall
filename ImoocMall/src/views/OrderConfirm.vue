@@ -134,7 +134,6 @@
         </div>
       </div>
     </div>
-
     <nav-footer></nav-footer>
   </div>
 </template>
